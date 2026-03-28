@@ -1,8 +1,8 @@
 <div align="center">
   <img src="https://img.icons8.com/external-flat-icons-inmotus-design/128/external-Shield-cyber-security-flat-icons-inmotus-design.png" alt="Veritas AI Logo" width="80" />
   <h1>Veritas AI</h1>
-  <p><strong>The Ultimate AI-Powered Misinformation Sentinel</strong></p>
-  <p><em>Unveiling the truth in the digital age through cryptographic precision and advanced neural analysis.</em></p>
+  <p><strong>AI fact-checking dashboard for claims, links, and articles</strong></p>
+  <p><em>Paste a claim or URL, get a verdict, confidence score, and supporting context.</em></p>
   <br />
   <a href="./README.md" download="Veritas-AI-Documentation.md">
     <img src="https://img.shields.io/badge/Download_README_(Markdown)-000000?style=for-the-badge&logo=markdown&logoColor=white" alt="Download README" />
@@ -12,38 +12,34 @@
 ---
 
 ## 📖 Table of Contents
-1. [Problem Statement](#problem-statement)
-2. [Solution Overview](#solution-overview)
-3. [Tech Stack](#tech-stack)
-4. [Prerequisites](#prerequisites)
-5. [Installation & Setup](#installation--setup)
-6. [Environment Variables](#environment-variables)
-7. [Project Structure](#project-structure)
-8. [Core Functionality & API](#core-functionality--api)
-9. [Usage Guide](#usage-guide)
-10. [Screenshots & Workflow](#screenshots--workflow)
-11. [Deployment Instructions](#deployment-instructions)
-12. [Known Limitations](#known-limitations)
-13. [Future Roadmap](#future-roadmap)
-14. [Contribution Guidelines](#contribution-guidelines)
-15. [License](#license)
-16. [Frequently Asked Questions (FAQ)](#frequently-asked-questions-faq)
-17. [Viva / Judge Panel Questions](#viva--judge-panel-questions)
+1. [What This App Does](#what-this-app-does)
+2. [Quick Setup](#quick-setup)
+3. [Environment Variables](#environment-variables)
+4. [Usage Guide](#usage-guide)
+5. [Deployment Instructions](#deployment-instructions)
+6. [Project Structure](#project-structure)
+7. [Core Functionality & API](#core-functionality--api)
+8. [Known Limitations](#known-limitations)
+9. [Future Roadmap](#future-roadmap)
+10. [Frequently Asked Questions (FAQ)](#frequently-asked-questions-faq)
 
 ---
 
-## 🚨 Problem Statement
-In today's fast-paced digital ecosystem, viral claims, deepfakes, and clickbait articles spread entirely unchecked. People consume news rapidly, often lacking the time or tools required to thoroughly cross-reference facts, identify linguistic bias, or evaluate source credibility. Misinformation scales instantly, but manual fact-checking takes hours. 
+## What This App Does
+Veritas AI is a simple fact-checking dashboard.
 
-## 💡 Solution Overview
-**Veritas AI** bridges this gap. By pasting a single URL, news headline, or random question into the dashboard, users instantly receive:
-- A definitive **Verdict** (`True`, `False`, or `Unverified`).
-- An exact **Neural Confidence Score**.
-- A deterministic **Score Breakdown** covering *Logical Consistency*, *Source Reliability*, and *Factual Alignment*.
-- Extracted **Red Flags** and linguistic **Sentiment** mapping.
-- Automatically gathered **Referenced Citations**.
+Paste in:
+- a short claim
+- a news article URL
+- a longer question or statement
 
-The robust architecture utilizes a "Hardcoded Truth Sentinel" for instant validation of known facts and heavily optimized API connections to large language models (LLMs) to scrape, process, and evaluate completely unknown claims. 
+You get back:
+- a verdict: `True`, `False`, or `Unverified`
+- a confidence score
+- a short explanation
+- sources, red flags, and related claims
+
+The app uses a backend pipeline with hardcoded checks, URL scraping, Wikipedia context, and Gemini AI.
 
 ---
 
@@ -91,78 +87,48 @@ This project utilizes a modern, decoupled architecture designed for speed, type 
 
 ---
 
-## ✅ Prerequisites
+## Quick Setup
 
-Before you begin, ensure you have the following installed:
+If you want to run the app locally, you only need:
 
-| Requirement | Minimum Version | How to Verify |
-|---|---|---|
-| **Node.js** | v18.0.0 or higher | `node --version` |
-| **npm** | v9.0.0 or higher (ships with Node.js) | `npm --version` |
-| **Git** | Any recent version | `git --version` |
-| **A code editor** | VS Code recommended | — |
-| **Google Gemini API Key** | Free tier works | Get one at [Google AI Studio](https://aistudio.google.com/apikey) |
+- Node.js 18+
+- npm
+- a Gemini API key
 
-> **Note:** npm is the default package manager for this project. Yarn and pnpm are untested.
+Then follow these steps:
 
----
+1. Clone the repo:
+   ```bash
+   git clone https://github.com/suryadeepkrsingh-cmd/fake-news.git
+   cd fake-news
+   ```
+2. Install dependencies:
+   ```bash
+   npm install
+   npm install --prefix server
+   ```
+3. Create your backend env file:
+   ```powershell
+   Copy-Item server\.env.example server\.env
+   ```
+4. Open `server/.env` and add your Gemini API key.
+5. Start the backend:
+   ```bash
+   npm run server
+   ```
+6. Start the frontend in a second terminal:
+   ```bash
+   npm run dev
+   ```
+7. Open `http://localhost:5173` in your browser.
 
-## 🚀 Installation & Setup
-
-Follow these steps to get Veritas AI running locally on your machine.
-
-### Option 1: Clone with Git (Recommended)
-**1. Clone the repository**
-```bash
-git clone https://github.com/suryadeepkrsingh-cmd/fake-news.git
-cd fake-news
-```
-
-### Option 2: Download ZIP File
-**1. Download and extract**
-- On GitHub, click **Code** then **Download ZIP**
-- Extract the ZIP file to your desired location
-- Open the extracted folder in your code editor
-
-**2. Install frontend dependencies**
-```bash
-npm install
-```
-
-**3. Install backend dependencies**
-```bash
-npm install --prefix server
-```
-
-**4. Configure environment variables**
-
-Copy the example env file and add your own Gemini key:
-```powershell
-Copy-Item server\.env.example server\.env
-```
-Then edit `server/.env` as described in [Environment Variables](#environment-variables) below.
-
-**5. Start the backend server** (Terminal 1)
-```bash
-npm run server
-```
-You should see: `Fact Checker Backend listening at http://localhost:3001`
-
-**7. Start the frontend dev server** (Terminal 2)
-```bash
-npm run dev
-```
-You should see: `Local: http://localhost:5173/`
-
-**8. Open your browser** and navigate to `http://localhost:5173`.
-
-**9. Verify the connection** — the top-right of the dashboard should show a green "Online" indicator. If you see an amber "Backend Offline" banner, confirm the server is running on port 3001.
+If the app opens but shows a backend offline message, check that `npm run server` is still running on port `3001`.
 
 ---
 
 ## 🔐 Environment Variables
 
-Create a file named `.env` inside the `server/` directory, or copy `server/.env.example` and fill in your values:
+Copy `server/.env.example` to `server/.env` and fill in your values:
 
 ```env
 # server/.env
@@ -191,7 +157,7 @@ The server cycles through keys round-robin style — when one key receives a `42
 3. Click **Create API Key** and copy the generated key.
 4. Paste it into your `server/.env` file.
 
-> **Security Warning:** Never commit your `.env` file to version control. This repo includes `server/.env.example` as a safe template, and `.gitignore` already excludes `server/.env`.
+> **Security Warning:** Never commit your `.env` file to version control. `server/.env.example` is the safe template, and `server/.env` is ignored already.
 
 ---
 
