@@ -31,6 +31,22 @@ function getNextApiKey() {
   return key;
 }
 
+function isGeminiKeyError(error) {
+  const status = error?.status || error?.response?.status;
+  const message = String(error?.message || '').toLowerCase();
+
+  return (
+    status === 401 ||
+    status === 403 ||
+    status === 429 ||
+    message.includes('api key') ||
+    message.includes('forbidden') ||
+    message.includes('leaked') ||
+    message.includes('quota') ||
+    message.includes('unauthorized')
+  );
+}
+
 const HARDCODED_TRUTHS = {
   'the earth is flat': {
     verdict: 'False',
@@ -435,8 +451,7 @@ app.post('/api/verify', async (req, res) => {
       Only return valid JSON. No other text.
     `;
 
-    const activeKey = getNextApiKey();
-    if (!activeKey) {
+    if (apiKeys.length === 0) {
       return res.json(
         buildFallbackVerification(
           'Verification service is running, but no Gemini API key is configured on the server.',
@@ -444,28 +459,52 @@ app.post('/api/verify', async (req, res) => {
       );
     }
 
-    const genAI = new GoogleGenerativeAI(activeKey);
-    const model = genAI.getGenerativeModel({ 
-      model: 'gemini-2.5-flash',
-      generationConfig: { responseMimeType: "application/json" }
-    });
+    let lastError = null;
 
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
-    if (!response) {
-      throw new Error('Gemini returned an empty response');
+    for (let attempt = 0; attempt < apiKeys.length; attempt += 1) {
+      const activeKey = getNextApiKey();
+      if (!activeKey) {
+        break;
+      }
+
+      try {
+        const genAI = new GoogleGenerativeAI(activeKey);
+        const model = genAI.getGenerativeModel({
+          model: 'gemini-2.5-flash',
+          generationConfig: { responseMimeType: 'application/json' },
+        });
+
+        const result = await model.generateContent(prompt);
+        const response = await result.response;
+        if (!response) {
+          throw new Error('Gemini returned an empty response');
+        }
+
+        const text = response.text();
+        const jsonStr = text.replace(/```json/g, '').replace(/```/g, '').trim();
+        const verification = JSON.parse(jsonStr);
+
+        return res.json({
+          ...DEFAULT_METRIC_OVERLAY,
+          ...verification,
+          sources: verification.sources || [],
+          relatedClaims: verification.relatedClaims || [],
+        });
+      } catch (error) {
+        lastError = error;
+        console.error('Fact-check attempt failed:', error);
+
+        if (!isGeminiKeyError(error) || attempt === apiKeys.length - 1) {
+          break;
+        }
+      }
     }
-    const text = response.text();
 
-    const jsonStr = text.replace(/```json/g, '').replace(/```/g, '').trim();
-    const verification = JSON.parse(jsonStr);
-
-    res.json({
-      ...DEFAULT_METRIC_OVERLAY,
-      ...verification,
-      sources: verification.sources || [],
-      relatedClaims: verification.relatedClaims || [],
-    });
+    return res.json(
+      buildFallbackVerification(
+        `Verification service is online, but the configured Gemini API key could not be used: ${lastError?.message || 'Unknown error'}. Replace the key in server/.env and try again.`,
+      ),
+    );
   } catch (error) {
     console.error('Fact-check error:', error);
     return res.json(
