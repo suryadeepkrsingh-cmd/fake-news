@@ -33,7 +33,8 @@ export interface FeedbackPayload {
   message: string;
 }
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL?.trim().replace(/\/$/, '') ?? '';
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL?.trim().replace(/\/$/, '') || 'http://127.0.0.1:3001';
 
 function apiUrl(path: string) {
   return API_BASE_URL ? `${API_BASE_URL}${path}` : path;

@@ -170,6 +170,17 @@ const DEFAULT_METRIC_OVERLAY = {
   relatedClaims: [],
 };
 
+function buildFallbackVerification(explanation) {
+  return {
+    ...DEFAULT_METRIC_OVERLAY,
+    verdict: 'Unverified',
+    confidence: 0,
+    explanation,
+    sources: [],
+    relatedClaims: [],
+  };
+}
+
 function normalizeText(value = '') {
   return value
     .toLowerCase()
@@ -426,7 +437,11 @@ app.post('/api/verify', async (req, res) => {
 
     const activeKey = getNextApiKey();
     if (!activeKey) {
-      return res.status(500).json({ error: 'No API keys configured on the server.' });
+      return res.json(
+        buildFallbackVerification(
+          'Verification service is running, but no Gemini API key is configured on the server.',
+        ),
+      );
     }
 
     const genAI = new GoogleGenerativeAI(activeKey);
@@ -453,10 +468,11 @@ app.post('/api/verify', async (req, res) => {
     });
   } catch (error) {
     console.error('Fact-check error:', error);
-    res.status(500).json({
-      error: 'Failed to verify claim',
-      details: error.message,
-    });
+    return res.json(
+      buildFallbackVerification(
+        `Verification service is online, but the AI analysis step failed: ${error.message}`,
+      ),
+    );
   }
 });
 
