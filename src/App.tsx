@@ -51,6 +51,8 @@ const riskyTerms = [
   'unprecedented',
 ];
 
+const HISTORY_STORAGE_KEY = 'veritas-history';
+
 function escapeRegExp(value: string) {
   return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
@@ -150,7 +152,20 @@ function App() {
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<null | VerificationResult>(null);
-  const [history, setHistory] = useState<{ claim: string; result: VerificationResult }[]>([]);
+  const [history, setHistory] = useState<{ claim: string; result: VerificationResult }[]>(() => {
+    if (typeof window === 'undefined') return [];
+
+    try {
+      const savedHistory = window.localStorage.getItem(HISTORY_STORAGE_KEY);
+      if (!savedHistory) return [];
+
+      const parsedHistory = JSON.parse(savedHistory);
+      return Array.isArray(parsedHistory) ? parsedHistory : [];
+    } catch (error) {
+      console.error('Failed to load saved history', error);
+      return [];
+    }
+  });
   const [showHistory, setShowHistory] = useState(false);
   const [activeClaim, setActiveClaim] = useState('');
   const [copiedSummary, setCopiedSummary] = useState(false);
@@ -185,6 +200,14 @@ function App() {
     document.documentElement.setAttribute('data-theme', theme);
     window.localStorage.setItem('veritas-theme', theme);
   }, [theme]);
+
+  useEffect(() => {
+    try {
+      window.localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(history));
+    } catch (error) {
+      console.error('Failed to save history', error);
+    }
+  }, [history]);
 
   useEffect(() => {
     if (result && !loading && dashboardRef.current) {

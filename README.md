@@ -22,6 +22,7 @@
 8. [Known Limitations](#known-limitations)
 9. [Future Roadmap](#future-roadmap)
 10. [Frequently Asked Questions (FAQ)](#frequently-asked-questions-faq)
+11. [Quick Viva Answers](#quick-viva-answers)
 
 ---
 
@@ -666,3 +667,69 @@ Pre-built component libraries constrain design when targeting a highly bespoke "
 **12. What was the hardest backend challenge to overcome?**
 
 Resilient data alignment out of a Large Language Model. Generating an array of strings like `redFlags` sometimes results in an empty string, an improperly keyed array, or markdown tick wrapper overrides (` ```json `). Writing robust Node.js cleanup logic via regex stripping alongside aggressive default metric merging guarantees that even significantly malformed or incomplete AI responses fail softly, allowing the UI pipeline to extract what it can without crashing the final user view.
+
+---
+
+## Quick Viva Answers
+
+*These are short, impressive answers you can speak directly during a demo, viva, or judge round.*
+
+---
+
+**1. What problem does your project solve?**
+
+It helps users detect fake or misleading news quickly and promotes informed decision-making.
+
+---
+
+**2. Why did you choose this project?**
+
+Because misinformation is a serious real-world issue, and we wanted to build a practical solution.
+
+---
+
+**3. How does your system work?**
+
+It analyzes news text for patterns like sensational language, weak sources, and misleading structure.
+
+---
+
+**4. What makes your project unique?**
+
+It provides fast, AI-based credibility analysis in a simple and user-friendly way.
+
+---
+
+**5. Why should users trust it?**
+
+It uses a consistent analysis process and supports human judgment instead of replacing it.
+
+---
+
+**6. What technologies did you use?**
+
+We used React, Vite, Tailwind CSS, Node.js, Express, and Gemini-based AI logic for detection.
+
+---
+
+**7. Who can use this project?**
+
+Students, journalists, researchers, and anyone who consumes online news can benefit from it.
+
+---
+
+**8. What are its limitations?**
+
+It may be less accurate for satire, unclear context, or breaking news with limited verified data.
+
+---
+
+**9. How can it be improved?**
+
+It can be improved with larger datasets, fact-checking APIs, source scoring, and explainable results.
+
+---
+
+**10. What is the main goal of the project?**
+
+To reduce misinformation and encourage people to verify before believing or sharing content.
