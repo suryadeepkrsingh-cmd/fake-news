@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import axios from 'axios';
 import * as cheerio from 'cheerio';
+import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
@@ -18,7 +19,32 @@ const port = process.env.PORT || 3001;
 app.use(cors());
 app.use(express.json());
 
-const feedbackStore = [];
+const feedbackStorePath = path.join(__dirname, 'feedback-store.json');
+
+function loadFeedbackStore() {
+  try {
+    if (!fs.existsSync(feedbackStorePath)) {
+      return [];
+    }
+
+    const raw = fs.readFileSync(feedbackStorePath, 'utf-8');
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch (error) {
+    console.error('Failed to load feedback store:', error);
+    return [];
+  }
+}
+
+function saveFeedbackStore(store) {
+  try {
+    fs.writeFileSync(feedbackStorePath, JSON.stringify(store, null, 2), 'utf-8');
+  } catch (error) {
+    console.error('Failed to save feedback store:', error);
+  }
+}
+
+const feedbackStore = loadFeedbackStore();
 
 const rawKeys = process.env.GEMINI_API_KEY || '';
 const apiKeys = rawKeys.split(',').map((k) => k.trim()).filter(Boolean);
@@ -340,6 +366,8 @@ app.post('/api/feedback', (req, res) => {
     feedbackStore.shift();
   }
 
+  saveFeedbackStore(feedbackStore);
+
   return res.json({ ok: true });
 });
 
@@ -462,10 +490,13 @@ app.post('/api/verify', async (req, res) => {
     let lastError = null;
 
     for (let attempt = 0; attempt < apiKeys.length; attempt += 1) {
+      const keyIndex = currentKeyIndex;
       const activeKey = getNextApiKey();
       if (!activeKey) {
         break;
       }
+
+      console.info(`[Gemini] Attempt ${attempt + 1}/${apiKeys.length} using key ${keyIndex + 1}/${apiKeys.length}`);
 
       try {
         const genAI = new GoogleGenerativeAI(activeKey);
