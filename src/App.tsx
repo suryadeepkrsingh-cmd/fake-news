@@ -19,14 +19,11 @@ import {
   Sun,
   Moon,
   X,
-  Download,
 } from 'lucide-react';
 import { ThreeCanvas } from './components/ThreeCanvas';
 import { fetchUrlPreview, submitFeedback, verifyClaim } from './lib/ai';
 import type { VerificationResult } from './lib/ai';
 import type { UrlPreviewResult } from './lib/ai';
-
-import readmeContent from '../README.md?raw';
 
 const examplePrompts = [
   'Did India win the 2026 T20 World Cup?',
@@ -286,18 +283,6 @@ function App() {
     howItWorksRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
-  const handleDownloadReadme = () => {
-    const blob = new Blob([readmeContent], { type: 'text/markdown' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'Veritas-AI-README.md';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-  };
-
   const copySummary = async () => {
     if (!result) return;
 
@@ -385,14 +370,6 @@ function App() {
             </h1>
           </div>
           <div className="flex items-center gap-2 md:gap-4">
-            <button
-              onClick={handleDownloadReadme}
-              className="nav-action-button inline-flex items-center gap-2"
-              title="Download README"
-            >
-              <Download className="h-4 w-4" />
-              <span className="hidden sm:inline">Docs</span>
-            </button>
             <button
               onClick={() => setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'))}
               className="nav-action-button inline-flex items-center gap-2"
